@@ -1,0 +1,13 @@
+package com.nutrition.nutrition_voice_tracker_api;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class NutritionVoiceTrackerApiApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
