@@ -1,5 +1,7 @@
 package com.nutrition.nutrition_voice_tracker_api.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,5 +37,27 @@ public class JwtService {
                 .setExpiration(Date.from(now.plusSeconds(expirationSeconds)))
                 .signWith(key)
                 .compact();
+    }
+
+    public UUID extractUserId(String token) {
+        Claims claims = parseClaims(token);
+        return UUID.fromString(claims.getSubject());
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

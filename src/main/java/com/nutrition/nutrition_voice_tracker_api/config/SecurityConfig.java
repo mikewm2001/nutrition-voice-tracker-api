@@ -1,35 +1,31 @@
 package com.nutrition.nutrition_voice_tracker_api.config;
 
+import com.nutrition.nutrition_voice_tracker_api.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // For APIs + Postman testing (we'll re-enable with JWT later if needed)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+        return http
                 .csrf(csrf -> csrf.disable())
-
-                // No sessions (JWT-friendly)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Disable default login UI / basic auth prompts
-                .httpBasic(Customizer.withDefaults());
-        // NOTE: We’ll remove httpBasic later once JWT filter is in
-
-        http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .anyRequest().authenticated()
-                );
-
-        return http.build();
+                )
+                // No form login / no basic auth
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                // Add JWT filter before Spring's auth filter
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 }
