@@ -57,7 +57,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             if (user != null) {
                 var auth = new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
+                        user.getId().toString(),
                         null,
                         List.of() // no roles yet
                 );
